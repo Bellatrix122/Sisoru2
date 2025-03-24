@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="flex">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h1>SISORU</h1>
+    <nav>
+      <a href="{{ url_for('dashboard') }}" class="nav-item">📊 Dashboard</a>
+      <a href="{{ url_for('crop_advisor') }}" class="nav-item">🌱 Crop Advisor</a>
+      <a href="{{ url_for('cost_predictor') }}" class="nav-item">💰 Cost Predictor</a>
+      <a href="{{ url_for('water_analysis') }}" class="nav-item">💧 Water Analysis</a>
+    </nav>
+    <div class="logout-container">
+      <a href="{{ url_for('logout') }}" class="logout-button">🚪 Logout</a>
+    </div>
+  </div>
+  
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <h2>District Agricultural Overview</h2>
+    <div class="grid-container">
+      <div class="content-card">
+        <h3>Top Performing Crop</h3>
+        <p>Rice</p>
+        <p>Avg. Yield: 5.2 ton/ha</p>
+      </div>
+      <div class="content-card">
+        <h3>Water Availability</h3>
+        <p>62%</p>
+        <p>(-8% from last season)</p>
+      </div>
+      <div class="content-card">
+        <h3>Production Cost</h3>
+        <p>₹34,500/ha</p>
+        <p>(+12% YoY)</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

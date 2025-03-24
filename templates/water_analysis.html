@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Water Analysis</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="flex">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h1>SISORU</h1>
+    <nav>
+      <a href="{{ url_for('dashboard') }}" class="nav-item">📊 Dashboard</a>
+      <a href="{{ url_for('crop_advisor') }}" class="nav-item">🌱 Crop Advisor</a>
+      <a href="{{ url_for('cost_predictor') }}" class="nav-item">💰 Cost Predictor</a>
+      <a href="{{ url_for('water_analysis') }}" class="nav-item">💧 Water Analysis</a>
+    </nav>
+    <div class="logout-container">
+      <a href="{{ url_for('logout') }}" class="logout-button">🚪 Logout</a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <h2>Water Analysis</h2>
+    <div class="grid-container">
+      <div class="content-card">
+        <h3>Reservoir Status</h3>
+        <p>Current Level: 62%</p>
+        <p>Change: -8% from last season</p>
+      </div>
+      <div class="content-card">
+        <h3>Rainfall Prediction</h3>
+        <p>Expected: 42 mm</p>
+        <p>Best Month: July</p>
+      </div>
+      <div class="content-card">
+        <h3>Irrigation Needs</h3>
+        <p>Required: 1,200 cubic meters/ha</p>
+        <p>Critical Crops: Rice, Sugarcane</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

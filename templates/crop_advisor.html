@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crop Advisor</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="flex">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h1>SISORU</h1>
+    <nav>
+      <a href="{{ url_for('dashboard') }}" class="nav-item">📊 Dashboard</a>
+      <a href="{{ url_for('crop_advisor') }}" class="nav-item">🌱 Crop Advisor</a>
+      <a href="{{ url_for('cost_predictor') }}" class="nav-item">💰 Cost Predictor</a>
+      <a href="{{ url_for('water_analysis') }}" class="nav-item">💧 Water Analysis</a>
+    </nav>
+    <div class="logout-container">
+      <a href="{{ url_for('logout') }}" class="logout-button">🚪 Logout</a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <h2>Crop Advisor</h2>
+    <div class="grid-container">
+      <div class="content-card">
+        <h3>Recommended Crop</h3>
+        <p>Wheat</p>
+        <p>Best Season: Winter</p>
+      </div>
+      <div class="content-card">
+        <h3>Soil Requirements</h3>
+        <p>Loamy Soil</p>
+        <p>pH: 6.5 - 7.0</p>
+      </div>
+      <div class="content-card">
+        <h3>Fertilizer Suggestions</h3>
+        <p>NPK: 2:1:1 Ratio</p>
+        <p>Organic Compost: 5 tons/ha</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
