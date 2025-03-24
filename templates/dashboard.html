@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard</title>
+  <title>SISORU Dashboard</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-<body class="flex">
+<body>
   <!-- Sidebar -->
   <div class="sidebar">
     <h1>SISORU</h1>
@@ -20,7 +20,6 @@
       <a href="{{ url_for('logout') }}" class="logout-button">🚪 Logout</a>
     </div>
   </div>
-  
 
   <!-- Main Content -->
   <div class="main-content">
@@ -35,11 +34,6 @@
         <h3>Water Availability</h3>
         <p>62%</p>
         <p>(-8% from last season)</p>
-      </div>
-      <div class="content-card">
-        <h3>Production Cost</h3>
-        <p>₹34,500/ha</p>
-        <p>(+12% YoY)</p>
       </div>
     </div>
   </div>
