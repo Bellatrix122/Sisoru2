@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Shortages</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+  <!-- Sidebar -->
+<div class="sidebar">
+  <h1>SISORU</h1>
+  <nav>
+    <a href="{{ url_for('dashboard') }}" class="nav-item">📊 Dashboard</a>
+<a href="{{ url_for('crop_advisor') }}" class="nav-item">🌱 Crop Advisor</a>
+<a href="{{ url_for('cost_predictor') }}" class="nav-item">💰 Cost Predictor</a>
+<a href="{{ url_for('crop_shortages') }}" class="nav-item active">🌾 Crop Shortages</a>
+
+
+  </nav>
+  <div class="logout-container">
+    <a href="{{ url_for('logout') }}" class="logout-button">🚪 Logout</a>
+  </div>
+</div>
+    <div class="container">
+        <h2>Crop Shortages Prediction</h2>
+
+        <form method="POST" action="{{ url_for('shortages.district_shortage') }}">
+            <label for="state">Select State:</label>
+            <select id="state" name="state" onchange="updateDistricts()" required>
+                <option value="">--Select State--</option>
+                {% for state in states %}
+                    <option value="{{ state }}" {% if state==request.form.get('state') %}selected{% endif %}>{{ state }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="district">Select District:</label>
+            <select id="district" name="district" required>
+                <option value="">--Select District--</option>
+                {% if request.form.get('state') %}
+                    {% for district in districts_by_state[request.form.get('state')] %}
+                        <option value="{{ district }}" {% if district==request.form.get('district') %}selected{% endif %}>{{ district }}</option>
+                    {% endfor %}
+                {% endif %}
+            </select>
+
+            <button type="submit">Predict Shortages</button>
+        </form>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        {% if shortage_crops %}
+            <h3>Shortage Crops:</h3>
+            <ul>
+                {% for crop in shortage_crops %}
+                    <li>{{ crop }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if alternative_crops %}
+            <h3>Alternative Crops:</h3>
+            <ul>
+                {% for crop in alternative_crops %}
+                    <li>{{ crop }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+
+    <script>
+      let districtsByState = JSON.parse('{{ districts_by_state | tojson | safe }}');
+  
+      function updateDistricts() {
+          let state = document.getElementById("state").value;
+          let districtDropdown = document.getElementById("district");
+  
+          districtDropdown.innerHTML = "<option value=''>--Select District--</option>";
+  
+          if (state && districtsByState[state]) {
+              districtsByState[state].forEach(district => {
+                  let option = new Option(district, district);
+                  districtDropdown.add(option);
+              });
+          }
+      }
+  </script>
+  
+</body>
+</html>

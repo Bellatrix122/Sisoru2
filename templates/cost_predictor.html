@@ -12,9 +12,11 @@
     <h1>SISORU</h1>
     <nav>
       <a href="{{ url_for('dashboard') }}" class="nav-item">📊 Dashboard</a>
-      <a href="{{ url_for('crop_advisor') }}" class="nav-item">🌱 Crop Advisor</a>
-      <a href="{{ url_for('cost_predictor') }}" class="nav-item">💰 Cost Predictor</a>
-      <a href="{{ url_for('water_analysis') }}" class="nav-item">💧 Water Analysis</a>
+<a href="{{ url_for('crop_advisor') }}" class="nav-item">🌱 Crop Advisor</a>
+<a href="{{ url_for('cost_predictor') }}" class="nav-item">💰 Cost Predictor</a>
+<a href="{{ url_for('crop_shortages') }}" class="nav-item active">🌾 Crop Shortages</a>
+
+
     </nav>
     <div class="logout-container">
       <a href="{{ url_for('logout') }}" class="logout-button">🚪 Logout</a>

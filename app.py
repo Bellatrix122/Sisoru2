@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 import sqlite3
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
+from shortages import shortages_bp  # Import the shortages blueprint
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -41,6 +42,9 @@ def create_users_table():
 
 # Initialize database on app start
 create_users_table()
+
+# Register shortages Blueprint
+app.register_blueprint(shortages_bp)
 
 # Route: Default Landing Page (Redirect to Login)
 @app.route('/')
@@ -116,13 +120,13 @@ def cost_predictor():
         return redirect(url_for('login'))
     return render_template('cost_predictor.html', username=session['username'], active_page='cost_predictor')
 
-# Route: Water Analysis
-@app.route('/water_analysis')
+@app.route('/crop_shortages')
 @nocache
-def water_analysis():
+def crop_shortages():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    return render_template('water_analysis.html', username=session['username'], active_page='water_analysis')
+    return render_template("shortages.html")  # Directly render the template
+
 
 # Route: Logout
 @app.route('/logout')

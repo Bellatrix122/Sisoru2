@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Shortages</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        /* Keep sidebar fixed */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: #002244;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar h1 {
+            font-size: 22px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 10px 15px;
+            color: white;
+            text-decoration: none;
+            margin: 5px 0;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: #004488;
+        }
+
+        .logout-container {
+            margin-top: auto;
+        }
+
+        .logout-button {
+            display: block;
+            background: #d9534f;
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            color: white;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+
+        .logout-button:hover {
+            background: #c9302c;
+        }
+
+        /* Main content area */
+        .main-content {
+            margin-left: 270px; /* Leave space for the sidebar */
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            max-width: 650px;
+            margin: auto;
+            color: black;
+        }
+
+        h2 {
+            color: #002244;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        select, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: #004488;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: 0.3s ease;
+            border: none;
+        }
+
+        button:hover {
+            background-color: #002855;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .results-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: left;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .results-box {
+            width: 48%;
+            background: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .results-box h3 {
+            text-align: center;
+            color: #004488;
+            font-size: 16px;
+            border-bottom: 2px solid #004488;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        ul li {
+            background: #e9ecef;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <h1>SISORU</h1>
+    <nav>
+        <a href="{{ url_for('dashboard') }}" class="nav-item">📊 Dashboard</a>
+        <a href="{{ url_for('crop_advisor') }}" class="nav-item">🌱 Crop Advisor</a>
+        <a href="{{ url_for('cost_predictor') }}" class="nav-item">💰 Cost Predictor</a>
+        <a href="{{ url_for('crop_shortages') }}" class="nav-item active">🌾 Crop Shortages</a>
+    </nav>
+    <div class="logout-container">
+        <a href="{{ url_for('logout') }}" class="logout-button">🚪 Logout</a>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <div class="container">
+        <h2>Crop Shortages & Alternatives</h2>
+
+        <form method="post">
+            <label for="state">Select State:</label>
+            <select name="state" id="state" onchange="updateDistricts()">
+                <option value="">-- Select State --</option>
+                {% for state in states %}
+                    <option value="{{ state }}">{{ state }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="district">Select District:</label>
+            <select name="district" id="district" disabled>
+                <option value="">-- Select District --</option>
+            </select>
+
+            <button type="submit">Predict Shortages</button>
+        </form>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        {% if shortage_crops or alternative_crops %}
+            <div class="results-container">
+                <div class="results-box">
+                    <h3>Shortage Crops</h3>
+                    <ul>
+                        {% for crop in shortage_crops %}
+                            <li>{{ crop }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="results-box">
+                    <h3>Alternative Crops</h3>
+                    <ul>
+                        {% for crop in alternative_crops %}
+                            <li>{{ crop }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    let districtsByState = JSON.parse('{{ districts_by_state | tojson | safe }}');
+
+    function updateDistricts() {
+        let state = document.getElementById("state").value;
+        let districtDropdown = document.getElementById("district");
+
+        districtDropdown.innerHTML = "<option value=''>-- Select District --</option>";
+        districtDropdown.disabled = true;
+
+        if (state && districtsByState[state]) {
+            districtsByState[state].forEach(district => {
+                let option = new Option(district, district);
+                districtDropdown.add(option);
+            });
+            districtDropdown.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>
