@@ -113,7 +113,7 @@ def crop_advisor():
     return render_template('crop_advisor.html', username=session['username'], active_page='crop_advisor')
 
 # Route: Cost Predictor
-@app.route('/cost_predictor')
+@app.route('/cost_predictor/')
 @nocache
 def cost_predictor():
     if 'user_id' not in session:
@@ -146,6 +146,12 @@ def page_not_found(e):
 @app.before_request
 def before_request():
     print(f"Requested URL: {request.url}")
+
+@app.route('/test')
+def test():
+    return "Test route is working!"
+
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080, debug=True)
