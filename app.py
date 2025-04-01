@@ -3,7 +3,7 @@ import sqlite3
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from shortages import shortages_bp  # Import the shortages blueprint
-
+import visualization 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
