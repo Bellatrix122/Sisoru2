@@ -97,12 +97,28 @@ def register():
     return render_template('register.html')
 
 # Route: Dashboard
-@app.route('/dashboard')
-@nocache
 def dashboard():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    return render_template('dashboard.html', username=session['username'], active_page='dashboard')
+    selected_chart = request.args.get("chart", "cost")
+    
+    if selected_chart == "cost":
+        chart_html = visualization.cost_prediction_chart()
+    elif selected_chart == "crop":
+        crop1 = request.args.get("crop1", "rice_yield_kg_per_ha")
+        crop2 = request.args.get("crop2", "wheat_yield_kg_per_ha")
+        chart_html = visualization.crop_advisor_chart(crop1, crop2)
+        available_crops = visualization.get_available_crops()
+        return render_template(
+            "dashboard.html",
+            chart_html=chart_html,
+            available_crops=available_crops,
+            selected_chart="crop"
+        )
+    elif selected_chart == "shortages":
+        chart_html = visualization.shortages_chart()
+    else:
+        chart_html = visualization.cost_prediction_chart()  # Default
+    
+    return render_template("dashboard.html", chart_html=chart_html)
 
 # Route: Crop Advisor
 @app.route('/crop_advisor')
