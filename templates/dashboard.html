@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,38 +6,183 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SISORU Dashboard</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <style>
+     body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    min-height: 100vh;
+  }
+    /* Minimal dropdown styling */
+    .form-select {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      width: 100%;
+      background-color: white;
+      transition: border-color 0.15s ease-in-out;
+    }
+    
+    .form-select:focus {
+      border-color: #4a90e2;
+      outline: none;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #333;
+    }
+    
+    /* Chart container adjustments */
+    .chart-container {
+      width: 100%;
+      height: calc(100vh - 250px); /* Adjust based on your header height */
+      min-height: 500px;
+      overflow: hidden;
+    }
+    
+    .chart-container .card-body {
+      height: 100%;
+      padding: 15px;
+    }
+    
+    .chart-container .plotly-graph-div {
+      width: 100% !important;
+      height: 100% !important;
+    }
+    
+    /* Button styling */
+    .btn-primary {
+      background-color: #4a90e2;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+    }
+
+    .sidebar {
+    height: 100vh;
+    position: fixed;
+    overflow-y: auto;
+  }
+  .container {
+    flex: 1;
+    margin-left: 250px; /* Adjust this to match your sidebar width */
+    padding: 20px;
+    overflow: auto;
+  }
+
+    .btn-primary:hover {
+      background-color: #3a7bc8;
+    }
+  </style>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
-  <!-- Sidebar -->
-<div class="sidebar">
-  <h1>SISORU</h1>
-  <nav>
-    <a href="{{ url_for('dashboard') }}" class="nav-item">📊 Dashboard</a>
-<a href="{{ url_for('crop_advisor') }}" class="nav-item">🌱 Crop Advisor</a>
-<a href="{{ url_for('cost_predictor') }}" class="nav-item">💰 Cost Predictor</a>
-<a href="{{ url_for('crop_shortages') }}" class="nav-item active">🌾 Crop Shortages</a>
-
-
-  </nav>
-  <div class="logout-container">
-    <a href="{{ url_for('logout') }}" class="logout-button">🚪 Logout</a>
+  <!-- Sidebar Navigation -->
+  <div class="sidebar">
+    <h1>SISORU</h1>
+    <nav>
+      <a href="{{ url_for('dashboard') }}" class="nav-item">📊 Dashboard</a>
+      <a href="{{ url_for('crop_advisor') }}" class="nav-item">🌱 Crop Advisor</a>
+      <a href="{{ url_for('cost_predictor') }}" class="nav-item">💰 Cost Predictor</a>
+      <a href="{{ url_for('crop_shortages') }}" class="nav-item">🌾 Crop Shortages</a>
+    </nav>
+    <div class="logout-container">
+      <a href="{{ url_for('logout') }}" class="logout-button">🚪 Logout</a>
+    </div>
   </div>
-</div>
-  <!-- Main Content -->
-  <div class="main-content">
-    <h2>District Agricultural Overview</h2>
-    <div class="grid-container">
-      <div class="content-card">
-        <h3>Top Performing Crop</h3>
-        <p>Rice</p>
-        <p>Avg. Yield: 5.2 ton/ha</p>
+
+  <!-- Main Content Area -->
+  <div class="container">
+    <h1 class="text-center my-4">SISORU Dashboard</h1>
+
+    <!-- Visualization Type Selector -->
+    <div class="dropdown-container mb-4">
+      <label for="chart-select" class="form-label">Select Visualization:</label>
+      <select id="chart-select" name="chart" class="form-select" onchange="updateChart()">
+        <option value="cost" {% if request.args.get('chart') == 'cost' %}selected{% endif %}>Cost Prediction</option>
+        <option value="crop" {% if request.args.get('chart') == 'crop' %}selected{% endif %}>Crop Advisor</option>
+        <option value="shortages" {% if request.args.get('chart') == 'shortages' %}selected{% endif %}>Shortages Analysis</option>
+      </select>
+    </div>
+
+    <!-- Crop Selection Form (Only for Crop Advisor) -->
+    {% if request.args.get('chart') == 'crop' %}
+    <div class="crop-selection-form card mb-4">
+      <div class="card-body">
+        <form method="GET" action="{{ url_for('dashboard') }}">
+          <input type="hidden" name="chart" value="crop">
+          
+          <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+              <label for="crop1" class="form-label">First Crop:</label>
+              <select name="crop1" id="crop1" class="form-select">
+                {% for crop in available_crops %}
+                  <option value="{{ crop }}" 
+                          {% if request.args.get('crop1') == crop %}selected{% endif %}>
+                    {{ crop.replace('_yield_kg_per_ha', '').replace('_', ' ').title() }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+            
+            <div class="col-md-5">
+              <label for="crop2" class="form-label">Second Crop:</label>
+              <select name="crop2" id="crop2" class="form-select">
+                {% for crop in available_crops %}
+                  <option value="{{ crop }}" 
+                          {% if request.args.get('crop2') == crop %}selected{% endif %}>
+                    {{ crop.replace('_yield_kg_per_ha', '').replace('_', ' ').title() }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+            
+            <div class="col-md-2">
+              <button type="submit" class="btn btn-primary w-100">Compare</button>
+            </div>
+          </div>
+        </form>
       </div>
-      <div class="content-card">
-        <h3>Water Availability</h3>
-        <p>62%</p>
-        <p>(-8% from last season)</p>
+    </div>
+    {% endif %}
+
+    <!-- Chart Display Area -->
+    <div class="chart-container card">
+      <div class="card-body">
+        {{ chart_html|safe }}
       </div>
     </div>
   </div>
+
+  <script>
+    function updateChart() {
+      const selectedChart = document.getElementById("chart-select").value;
+      const urlParams = new URLSearchParams(window.location.search);
+      
+      // Preserve crop selections when switching between visualizations
+      if (selectedChart === 'crop') {
+        const crop1 = urlParams.get('crop1') || 'rice_yield_kg_per_ha';
+        const crop2 = urlParams.get('crop2') || 'wheat_yield_kg_per_ha';
+        window.location.href = `?chart=${selectedChart}&crop1=${crop1}&crop2=${crop2}`;
+      } else {
+        window.location.href = `?chart=${selectedChart}`;
+      }
+    }
+    
+    // Resize charts when window resizes
+    window.addEventListener('resize', function() {
+      if (typeof Plotly !== 'undefined') {
+        Plotly.Plots.resize(document.getElementById('your-chart-id'));
+      }
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
