@@ -152,13 +152,13 @@
     </div>
     {% endif %}
 
+    
     <!-- Chart Display Area -->
-    <div class="chart-container card">
+    <div class="chart-container card" style="max-height: 750px; overflow-y: auto;">
       <div class="card-body">
         {{ chart_html|safe }}
       </div>
     </div>
-  </div>
 
   <script>
     function updateChart() {
