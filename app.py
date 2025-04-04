@@ -97,6 +97,8 @@ def register():
     return render_template('register.html')
 
 # Route: Dashboard
+@app.route('/dashboard')
+@nocache
 def dashboard():
     selected_chart = request.args.get("chart", "cost")
     
