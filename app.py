@@ -98,29 +98,31 @@ def register():
 
 # Route: Dashboard
 @app.route('/dashboard')
-@nocache
 def dashboard():
-    selected_chart = request.args.get("chart", "cost")
-    
-    if selected_chart == "cost":
+    chart_type = request.args.get("chart", "cost")
+    crop1 = request.args.get("crop1", "rice_yield_kg_per_ha")
+    crop2 = request.args.get("crop2", "wheat_yield_kg_per_ha")
+    selected_crop = request.args.get("crop", "rice")  # Default crop for shortages chart
+
+    # Get available crops from the dataset
+    available_crops = visualization.get_available_crops()
+
+    # Generate the appropriate chart
+    if chart_type == "cost":
         chart_html = visualization.cost_prediction_chart()
-    elif selected_chart == "crop":
-        crop1 = request.args.get("crop1", "rice_yield_kg_per_ha")
-        crop2 = request.args.get("crop2", "wheat_yield_kg_per_ha")
+    elif chart_type == "crop":
         chart_html = visualization.crop_advisor_chart(crop1, crop2)
-        available_crops = visualization.get_available_crops()
-        return render_template(
-            "dashboard.html",
-            chart_html=chart_html,
-            available_crops=available_crops,
-            selected_chart="crop"
-        )
-    elif selected_chart == "shortages":
+    elif chart_type == "shortages":
         chart_html = visualization.shortages_chart()
     else:
-        chart_html = visualization.cost_prediction_chart()  # Default
-    
-    return render_template("dashboard.html", chart_html=chart_html)
+        chart_html = "<p>Invalid chart selection</p>"
+
+    # Pass available crops to the template
+    return render_template("dashboard.html", 
+                           chart_html=chart_html, 
+                           available_crops=available_crops, 
+                           selected_chart=chart_type, 
+                           selected_crop=selected_crop)
 
 # Route: Crop Advisor
 @app.route('/crop_advisor')
