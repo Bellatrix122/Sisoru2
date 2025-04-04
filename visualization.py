@@ -1,5 +1,5 @@
-# visualization.py
 import pandas as pd
+import plotly.graph_objects as go
 import plotly.express as px
 
 # Load dataset
@@ -16,21 +16,33 @@ def get_available_crops():
     yield_columns = [col for col in df.columns if col.endswith('_yield_kg_per_ha')]
     return yield_columns
 
+def cost_prediction_chart(n_cost=20, p_cost=25, k_cost=18):
+    df_cost = df_sample.copy()
 
-def cost_prediction_chart():
-    df_melted = df_sample.melt(id_vars=["year"], 
-                             value_vars=["nitrogen_per_ha_of_nca_kg_per_ha", 
-                                        "phosphate_per_ha_of_nca_kg_per_ha", 
-                                        "potash_per_ha_of_nca_kg_per_ha"], 
-                             var_name="Cost Type", value_name="Value")
-    
-    fig = px.bar(df_melted, x="year", y="Value", color="Cost Type", 
-               title="Fertilizer Usage Over Time",
-               labels={"Value": "Usage (kg/ha)", "Cost Type": "Fertilizer Type"},
-               barmode="group")
+    # Compute total fertilizer cost per hectare
+    df_cost["Nitrogen Cost (Rs/ha)"] = df_cost["nitrogen_per_ha_of_nca_kg_per_ha"] * n_cost
+    df_cost["Phosphate Cost (Rs/ha)"] = df_cost["phosphate_per_ha_of_nca_kg_per_ha"] * p_cost
+    df_cost["Potash Cost (Rs/ha)"] = df_cost["potash_per_ha_of_nca_kg_per_ha"] * k_cost
+
+    # Aggregate yearly averages
+    df_plot = df_cost.groupby("year")[["Nitrogen Cost (Rs/ha)", "Phosphate Cost (Rs/ha)", "Potash Cost (Rs/ha)"]].mean().reset_index()
+
+    # Melt for plotting
+    df_melted = df_plot.melt(id_vars=["year"], var_name="Fertilizer Type", value_name="Cost (Rs/ha)")
+
+    # Create line chart
+    fig = px.line(
+        df_melted, 
+        x="year", 
+        y="Cost (Rs/ha)", 
+        color="Fertilizer Type",
+        markers=True,
+        title="Fertilizer Cost Trend Over Time",
+        labels={"year": "Year", "Cost (Rs/ha)": "Cost per Hectare (Rs)"},
+    )
+
     fig.update_layout(width=800)
     return fig.to_html(full_html=False)
-
 
 def crop_advisor_chart(crop1="rice_yield_kg_per_ha", crop2="wheat_yield_kg_per_ha"):
     # Check if the selected crops exist in the dataset
@@ -59,13 +71,44 @@ def crop_advisor_chart(crop1="rice_yield_kg_per_ha", crop2="wheat_yield_kg_per_h
     return fig.to_html(full_html=False)
 
 def shortages_chart():
-    df_sample["total_irrigated_area"] = df_sample[["rice_irrigated_area_1000_ha", 
-                                                 "wheat_irrigated_area_1000_ha", 
-                                                 "maize_irrigated_area_1000_ha"]].sum(axis=1)
-    
-    fig = px.bar(df_sample, x="year", y="total_irrigated_area", color="state_name",
-               title="Total Irrigated Area Over Time",
-               labels={"total_irrigated_area": "Total Irrigated Area (1000 ha)", 
-                     "state_name": "State"})
-    fig.update_layout(width=800)
-    return fig.to_html(full_html=False)
+    irrigated_cols = [col for col in df_sample.columns if col.endswith("_irrigated_area_1000_ha")]
+
+    if not irrigated_cols:
+        return "<p style='color:red;'>No irrigation data available for visualization.</p>"
+
+    shortages = []
+    recent_years = df_sample["year"].max() - 2
+    df_recent = df_sample[df_sample["year"] >= recent_years]
+
+    for col in irrigated_cols:
+        crop_name = col.replace("_irrigated_area_1000_ha", "").replace("_", " ").title()
+        recent_avg = df_recent[col].mean()
+        past_avg = df_sample[col].mean()
+        shortage_pct = 100 * (1 - recent_avg / past_avg) if past_avg > 0 else 0
+        shortages.append((crop_name, shortage_pct))
+
+    shortage_df = pd.DataFrame(shortages, columns=["Crop", "Shortage %"])
+    shortage_df.sort_values("Shortage %", ascending=False, inplace=True)
+
+    fig = px.bar(
+        shortage_df,
+        x="Shortage %",
+        y="Crop",
+        orientation="h",
+        title="Irrigation Shortages (3-Year Avg vs Overall Avg)",
+        labels={"Shortage %": "Irrigation Shortage (%)"},
+        color="Shortage %",
+        color_continuous_scale="Reds"
+    )
+
+    fig.update_layout(
+        height=600,  # Set a fixed height
+        margin=dict(l=10, r=10, t=40, b=10),
+        yaxis=dict(automargin=True)  # Ensure labels fit
+    )
+
+    return f"""
+    <div style="overflow-y: auto; height: 600px;">
+        {fig.to_html(full_html=False)}
+    </div>
+    """
